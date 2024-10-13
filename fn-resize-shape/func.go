@@ -21,7 +21,7 @@ type Config struct {
 	TENANT_OCID  string `env:"TENANT_OCID"`
 	USER_OCID    string `env:"USER_OCID"`
 	REGION       string `env:"REGION"`
-	PRIVATE_KEY  string `env:"PRIVATE_KEY"`
+	PRIVATE_KEY  string `env:"OCI_RESOURCE_PRINCIPAL_PRIVATE_PEM"`
 	FINGERPRINT  string `env:"FINGERPRINT"`
 	PASSPHRASE   string `env:"PASSPHRASE"`
 	InstanceId   string `env:"INSTANCE_ID"`
@@ -45,8 +45,7 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	}
 
 	// Create a new client
-	privateKeyLocation := "/function/" + cfg.PRIVATE_KEY
-	privateKey, err := os.ReadFile(privateKeyLocation)
+	privateKey, err := os.ReadFile(cfg.PRIVATE_KEY)
 	helpers.FatalIfError(err)
 
 	rawConfigProvider := common.NewRawConfigurationProvider(cfg.TENANT_OCID, cfg.USER_OCID, cfg.REGION, cfg.FINGERPRINT, string(privateKey), common.String(cfg.PASSPHRASE))
