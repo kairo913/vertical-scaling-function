@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"os"
 
 	fdk "github.com/fnproject/fdk-go"
 	"github.com/oracle/oci-go-sdk/v65/common"
@@ -44,10 +45,9 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	}
 
 	// Create a new client
-	privateKey := cfg.PRIVATE_KEY
-	if privateKey == "" {
-		helpers.FatalIfError(errors.New("private key is required"))
-	}
+	privateKeyLocation := "/function/" + cfg.PRIVATE_KEY
+	privateKey, err := os.ReadFile(privateKeyLocation)
+	helpers.FatalIfError(err)
 
 	rawConfigProvider := common.NewRawConfigurationProvider(cfg.TENANT_OCID, cfg.USER_OCID, cfg.REGION, cfg.FINGERPRINT, string(privateKey), common.String(cfg.PASSPHRASE))
 	client, err := core.NewComputeClientWithConfigurationProvider(rawConfigProvider)
@@ -65,7 +65,9 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	}
 
 	_, err = client.UpdateInstance(context.Background(), req)
-	helpers.FatalIfError(err)
+	if err != nil {
+		helpers.FatalIfError(err)
+	}
 
 	json.NewEncoder(out).Encode("Instance resized successfully")
 }
