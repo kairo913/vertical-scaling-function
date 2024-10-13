@@ -2,12 +2,15 @@ package main
 
 import (
 	"context"
+	"encoding/json"
+	"errors"
 	"io"
 	"os"
 
 	fdk "github.com/fnproject/fdk-go"
 	"github.com/oracle/oci-go-sdk/v65/common"
 	"github.com/oracle/oci-go-sdk/v65/core"
+	"github.com/oracle/oci-go-sdk/v65/example/helpers"
 
 	"github.com/caarlos0/env"
 )
@@ -31,17 +34,16 @@ func main() {
 func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	var cfg Config
 	if err := env.Parse(&cfg); err != nil {
-		fdk.WriteStatus(out, 500)
-		return
+		helpers.FatalIfError(err)
 	}
 
 	if cfg.InstanceId == "" {
-		fdk.WriteStatus(out, 400)
+		helpers.FatalIfError(errors.New("instance ID is required"))
 		return
 	}
 
 	if cfg.TargetOCPU == 0 || cfg.TargetMemory == 0 {
-		fdk.WriteStatus(out, 400)
+		helpers.FatalIfError(errors.New("target OCPU and memory are required"))
 		return
 	}
 
@@ -49,15 +51,13 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	privateKeyLocation := "/function/" + cfg.PRIVATE_KEY
 	privateKey, err := os.ReadFile(privateKeyLocation)
 	if err != nil {
-		fdk.WriteStatus(out, 500)
-		return
+		helpers.FatalIfError(err)
 	}
 
 	rawConfigProvider := common.NewRawConfigurationProvider(cfg.TENANT_OCID, cfg.USER_OCID, cfg.REGION, cfg.FINGERPRINT, string(privateKey), common.String(cfg.PASSPHRASE))
 	client, err := core.NewComputeClientWithConfigurationProvider(rawConfigProvider)
 	if err != nil {
-		fdk.WriteStatus(out, 500)
-		return
+		helpers.FatalIfError(err)
 	}
 
 	// Resize the instance
@@ -73,9 +73,8 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 
 	_, err = client.UpdateInstance(context.Background(), req)
 	if err != nil {
-		fdk.WriteStatus(out, 500)
-		return
+		helpers.FatalIfError(err)
 	}
 
-	fdk.WriteStatus(out, 200)
+	json.NewEncoder(out).Encode("Instance resized successfully")
 }
