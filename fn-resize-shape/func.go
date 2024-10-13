@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"os"
 
 	fdk "github.com/fnproject/fdk-go"
@@ -33,9 +34,8 @@ func main() {
 
 func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	var cfg Config
-	if err := env.Parse(&cfg); err != nil {
-		helpers.FatalIfError(err)
-	}
+	err := env.Parse(&cfg)
+	helpers.FatalIfError(err)
 
 	if cfg.InstanceId == "" {
 		helpers.FatalIfError(errors.New("instance ID is required"))
@@ -50,15 +50,11 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	// Create a new client
 	privateKeyLocation := "/function/" + cfg.PRIVATE_KEY
 	privateKey, err := os.ReadFile(privateKeyLocation)
-	if err != nil {
-		helpers.FatalIfError(err)
-	}
+	helpers.FatalIfError(err)
 
 	rawConfigProvider := common.NewRawConfigurationProvider(cfg.TENANT_OCID, cfg.USER_OCID, cfg.REGION, cfg.FINGERPRINT, string(privateKey), common.String(cfg.PASSPHRASE))
 	client, err := core.NewComputeClientWithConfigurationProvider(rawConfigProvider)
-	if err != nil {
-		helpers.FatalIfError(err)
-	}
+	helpers.FatalIfError(err)
 
 	// Resize the instance
 	req := core.UpdateInstanceRequest{
@@ -73,6 +69,7 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 
 	_, err = client.UpdateInstance(context.Background(), req)
 	if err != nil {
+		log.Println("Error resizing instance")
 		helpers.FatalIfError(err)
 	}
 
