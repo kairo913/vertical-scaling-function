@@ -44,7 +44,6 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	log.Printf("Region: %s", cfg.REGION)
 	log.Printf("Fingerprint: %s", cfg.FINGERPRINT)
 	log.Printf("Instance ID: %s", cfg.InstanceId)
-	log.Printf("Private Key: %s", cfg.PRIVATE_KEY)
 	log.Printf("Passphrase: %s", cfg.PASSPHRASE)
 
 	if cfg.InstanceId == "" {
@@ -58,6 +57,8 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	// Create a new client
 	privateKey, err := os.ReadFile(cfg.PRIVATE_KEY)
 	helpers.FatalIfError(err)
+
+	log.Printf("Private Key: %s", string(privateKey))
 
 	rawConfigProvider := common.NewRawConfigurationProvider(cfg.TENANT_OCID, cfg.USER_OCID, cfg.REGION, cfg.FINGERPRINT, string(privateKey), common.String(cfg.PASSPHRASE))
 	client, err := core.NewComputeClientWithConfigurationProvider(rawConfigProvider)
