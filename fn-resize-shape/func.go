@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"io"
+	"log"
 	"os"
 
 	fdk "github.com/fnproject/fdk-go"
@@ -35,6 +36,14 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	var cfg Config
 	err := env.Parse(&cfg)
 	helpers.FatalIfError(err)
+
+	log.Printf("Target OCPU: %d", cfg.TargetOCPU)
+	log.Printf("Target Memory: %d", cfg.TargetMemory)
+	log.Printf("Tenant OCID: %s", cfg.TENANT_OCID)
+	log.Printf("User OCID: %s", cfg.USER_OCID)
+	log.Printf("Region: %s", cfg.REGION)
+	log.Printf("Fingerprint: %s", cfg.FINGERPRINT)
+	log.Printf("Instance ID: %s", cfg.InstanceId)
 
 	if cfg.InstanceId == "" {
 		helpers.FatalIfError(errors.New("instance ID is required"))
