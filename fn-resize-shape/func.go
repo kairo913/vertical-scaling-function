@@ -58,8 +58,6 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	privateKey, err := os.ReadFile(cfg.PRIVATE_KEY)
 	helpers.FatalIfError(err)
 
-	log.Printf("Private Key: %s", string(privateKey))
-
 	rawConfigProvider := common.NewRawConfigurationProvider(cfg.TENANT_OCID, cfg.USER_OCID, cfg.REGION, cfg.FINGERPRINT, string(privateKey), common.String(cfg.PASSPHRASE))
 	client, err := core.NewComputeClientWithConfigurationProvider(rawConfigProvider)
 	helpers.FatalIfError(err)
