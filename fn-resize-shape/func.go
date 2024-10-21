@@ -44,6 +44,7 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 	log.Printf("Region: %s", cfg.REGION)
 	log.Printf("Fingerprint: %s", cfg.FINGERPRINT)
 	log.Printf("Instance ID: %s", cfg.InstanceId)
+	log.Printf("Private Key: %s", cfg.PRIVATE_KEY)
 
 	if cfg.InstanceId == "" {
 		helpers.FatalIfError(errors.New("instance ID is required"))
