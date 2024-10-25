@@ -6,10 +6,10 @@ import (
 	"errors"
 	"io"
 	"log"
-	"os"
 
 	fdk "github.com/fnproject/fdk-go"
 	"github.com/oracle/oci-go-sdk/v65/common"
+	"github.com/oracle/oci-go-sdk/v65/common/auth"
 	"github.com/oracle/oci-go-sdk/v65/core"
 	"github.com/oracle/oci-go-sdk/v65/example/helpers"
 
@@ -39,12 +39,7 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 
 	log.Printf("Target OCPU: %d", cfg.TargetOCPU)
 	log.Printf("Target Memory: %d", cfg.TargetMemory)
-	log.Printf("Tenant OCID: %s", cfg.TENANT_OCID)
-	log.Printf("User OCID: %s", cfg.USER_OCID)
-	log.Printf("Region: %s", cfg.REGION)
-	log.Printf("Fingerprint: %s", cfg.FINGERPRINT)
 	log.Printf("Instance ID: %s", cfg.InstanceId)
-	log.Printf("Private Key: %s", cfg.PRIVATE_KEY)
 
 	if cfg.InstanceId == "" {
 		helpers.FatalIfError(errors.New("instance ID is required"))
@@ -54,12 +49,10 @@ func resizeHandler(ctx context.Context, in io.Reader, out io.Writer) {
 		helpers.FatalIfError(errors.New("target OCPU and memory are required"))
 	}
 
-	// Create a new client
-	privateKey, err := os.ReadFile(cfg.PRIVATE_KEY)
+	provider, err := auth.ResourcePrincipalConfigurationProvider()
 	helpers.FatalIfError(err)
 
-	rawConfigProvider := common.NewRawConfigurationProvider(cfg.TENANT_OCID, cfg.USER_OCID, cfg.REGION, cfg.FINGERPRINT, string(privateKey), common.String(cfg.PASSPHRASE))
-	client, err := core.NewComputeClientWithConfigurationProvider(rawConfigProvider)
+	client, err := core.NewComputeClientWithConfigurationProvider(provider)
 	helpers.FatalIfError(err)
 
 	// Resize the instance
