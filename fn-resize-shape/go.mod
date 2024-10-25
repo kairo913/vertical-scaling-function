@@ -3,9 +3,9 @@ module func
 go 1.23
 
 require (
-	github.com/caarlos0/env v3.5.0+incompatible
 	github.com/fnproject/fdk-go v0.0.48
 	github.com/oracle/oci-go-sdk/v65 v65.75.2
+	github.com/sethvargo/go-envconfig v1.1.0
 )
 
 require (
