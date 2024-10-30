@@ -1,5 +1,5 @@
 schema_version: 20180708
-name: fn-resize-shape
+name: vertical-scaling-func
 version: 1.0.0
 runtime: go
 build_image: fnproject/go:1.23-dev
